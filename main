@@ -1,0 +1,333 @@
+--// Anime Rangers X
+--// Scripted by: @ArcX
+
+repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
+
+--// Kaitun
+_G.SungJinWoo = true 
+_G.AutoStartLobby = true 
+
+--// PlayConfigs
+_G.AutoPlay = true
+_G.AutoUpgradeStats = true 
+_G.PlayMode = "VoteRetry" --// "VoteNext" or "VoteRetry"
+_G.WhiteScreen = false --// GPU 0%
+
+----------------------------------------------------------[[ Main ]]-------------------------------------------------------------
+
+local OptimizeSettings = true
+local RepeatFrequency = 0.1
+
+local function AutoUpgradeStats()
+    task.spawn(function()
+        while _G.AutoUpgradeStats do
+            task.wait(RepeatFrequency)
+            game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Gameplay"):WaitForChild("PlayerStats"):FireServer("YenGenarateLevel")
+            game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Gameplay"):WaitForChild("PlayerStats"):FireServer("YenMaxLevel")
+        end
+    end)
+end
+
+local function gameVote()
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild(_G.PlayMode):FireServer()
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VotePlaying"):FireServer()
+end
+
+--// WhiteScreen
+local function whiteScreen()
+    if _G.WhiteScreen then
+        game:GetService("RunService"):Set3dRenderingEnabled(false)
+    end
+end
+
+--// Settings
+local function optimizeSettings()
+    if OptimizeSettings then
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Settings"):WaitForChild("Setting_Event"):FireServer("Abilities VFX", true)
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Settings"):WaitForChild("Setting_Event"):FireServer("Low Graphic Quality", true)
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Settings"):WaitForChild("Setting_Event"):FireServer("DisibleGachaChat", true)
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Settings"):WaitForChild("Setting_Event"):FireServer("DisibleDamageText", true)
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Settings"):WaitForChild("Setting_Event"):FireServer("Display Players Units", false)
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Settings"):WaitForChild("Setting_Event"):FireServer("HeadBar", false)
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Settings"):WaitForChild("Setting_Event"):FireServer("Hide Cosmetic", true)
+    end
+end
+
+---------------------------------------------------[[ Kaitun Info ]]------------------------------------------------
+
+local Recipes = {
+    RangerCrystal = {
+        Name = "Ranger Crystal", 
+        World = "Challenge"
+    },
+    ObsidianPlate = {
+        Name = "Obsidian Plate", 
+        World = "OnePiece",
+        StageName = "Voocha Village",
+        Act = 3
+    },
+    SoulCore = {
+        Name = "Soul Core",
+        World = "Demon Slayer",
+        Act = 3
+    },
+}
+
+-- Create Room [1]
+local function createRoom()
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("PlayRoom"):WaitForChild("Event"):FireServer("Create")
+end
+
+-- Create Challenge Room [1.1]
+local function createChallengeRoom()
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("PlayRoom"):WaitForChild("Event"):FireServer("Create", {["CreateChallengeRoom"] = true})
+end
+
+-- Change Mode [2]
+local function changeMode(gameMode)
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("PlayRoom"):WaitForChild("Event"):FireServer("Change-Mode", {["Mode"] = gameMode})
+end
+
+-- Choose World [3]
+local Worlds = {
+    OnePiece = "OnePiece",
+    Namek = "Namek",
+    DemonSlayer = "Demon Slayer",
+    Naruto = "Naruto",
+    OPM = "OPM",
+}
+local function changeWorld(World)
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("PlayRoom"):WaitForChild("Event"):FireServer("Change-World", {["World"] = World})
+end
+
+--// Chapter & RangerStage
+local Chapters = {
+    OnePiece = {Name = "OnePiece_"},
+    Namek = {Name = "Namek_"},
+    DemonSlayer = {Name = "DemonSlayer_"},
+    Naruto = {Name = "Naruto_"},
+    OPM = {Name = "OPM_"},
+}
+
+-- Change Chapter [4]
+local function changeChapter(GameMode, World, Act)
+    local StageMode 
+    if GameMode == "Ranger Stage" then
+        StageMode = "RangerStage"
+    elseif GameMode == "Story" then
+        StageMode = "Chapter"
+    end
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("PlayRoom"):WaitForChild("Event"):FireServer("Change-Chapter", {["Chapter"] = World .. StageMode .. tostring(Act)})
+end
+
+-- Friend Only [5]
+local function changeFriendOnly()
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("PlayRoom"):WaitForChild("Event"):FireServer("Change-FriendOnly")
+end
+
+-- Submit Room [6]
+local function SubmitRoom()
+    game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("PlayRoom"):WaitForChild("Event"):FireServer("Submit")
+end
+
+-- Start Game [7]
+local function startGame()
+    if _G.AutoStartLobby then
+        game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("PlayRoom"):WaitForChild("Event"):FireServer("Start")
+    end
+end
+
+-- Farm [8]
+local function grind(GameMode, World, Act) --// 1.GameMode, 2.World, 3.Act
+    if GameMode == "Ranger Stage" or GameMode == "Story" then
+        createRoom()
+        changeMode(GameMode)
+        changeWorld(World)
+        changeChapter(GameMode, World, Act)
+        changeFriendOnly()
+        SubmitRoom()
+        startGame()
+    elseif GameMode == "Challenge" then
+        createChallengeRoom()
+        startGame()
+    end
+end
+
+-- Tp To Lobby
+local function toLobby()
+    local teleportService = game:GetService("TeleportService")
+    teleportService:Teleport(72829404259339 , game.Players.LocalPlayer)
+end
+
+-- GetNumberFromText
+local function getNumberFromText(text)
+    return tonumber(text:match("%d+")) or 0
+end
+
+---------------------------------------------------[[ KAITUN SUNG JIN WOO EVO ]]---------------------------------------------------
+
+local Ranger = "Ranger Stage" 
+local Story = "Story"
+local Challenge = "Challenge"
+
+local StageText = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Stage.Label
+
+local function sungJinWooEvo()
+    if not _G.SungJinWoo then return end
+    local Required_Materials = {
+        ObsidianPlate = {Name = "Obsidian Plate", Amount = 10},
+        SoulCore = {Name = "Soul Core", Amount = 7},
+        RangerCrystal = {Name = "Ranger Crystal", Amount = 18},
+    }
+
+
+    task.spawn(function()
+        local Method = 0
+        while _G.SungJinWoo do
+            task.wait(1)
+            local PlayerItems = game:GetService("Players").LocalPlayer.PlayerGui.Items.Main.Base.Space.Scrolling
+            for _, v in pairs(PlayerItems:GetChildren()) do
+                if v:IsA("TextButton") then
+                    if v.Name == Required_Materials.ObsidianPlate.Name then
+                        print(Required_Materials.ObsidianPlate.Name .. ": " .. extractNumber(v.Frame.ItemFrame.Info.Amonut.Text))
+                        if extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) ~= Required_Materials.ObsidianPlate.Amount and Method == 0 then
+                            Method = 1
+                            grind(Ranger, Recipes.ObsidianPlate.World, Recipes.ObsidianPlate.Act)
+                        elseif extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) == Required_Materials.ObsidianPlate.Amount then
+                            Method = 2
+                        end
+                    end
+                    if v.Name == Required_Materials.SoulCore.Name then
+                        print(Required_Materials.SoulCore.Name .. ": " .. extractNumber(v.Frame.ItemFrame.Info.Amonut.Text))
+                        if extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) ~= Required_Materials.SoulCore.Amount and Method == 2 then
+                            grind(Ranger, Recipes.SoulCore.World, Recipes.SoulCore.Act)
+                        elseif extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) == Required_Materials.SoulCore.Amount then
+                            Method = 3
+                        end
+                    end
+                    if v.Name == Required_Materials.RangerCrystal.Name then
+                        print(Required_Materials.RangerCrystal.Name .. ": " .. extractNumber(v.Frame.ItemFrame.Info.Amonut.Text))
+                        if extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) ~= Required_Materials.RangerCrystal.Amount and Method == 3 then
+                            grind(Challenge)
+                        elseif extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) == Required_Materials.RangerCrystal.Amount then
+                            Method = false
+                        end
+                    end
+                else
+                    print("No Items Found.")
+                end
+            end
+            if Method == false then
+                print("Ready To Evolve Sung Jin Woo.")
+                break
+            end
+        end
+    end)
+end
+
+---//
+
+local function getCurrentStage(str)
+    return str:gsub("%s*%-.*", "")
+end
+
+
+
+local materialSequence = {
+    {
+        name = "Obsidian Plate",
+        requiredCount = 10,
+        StageName = Recipes.ObsidianPlate.StageName,
+        grindAction = function()
+            grind(Ranger, Recipes.ObsidianPlate.World, Recipes.ObsidianPlate.Act)
+        end,
+    },
+    {
+        name = "Soul Core",
+        requiredCount = 7,
+        StageName = Recipes.SoulCore.StageName,
+        grindAction = function()
+            grind(Ranger, Recipes.SoulCore.World, Recipes.SoulCore.Act)
+        end,
+    },
+    {
+        name = "Ranger Crystal",
+        requiredCount = 18,
+        StageName = Recipes.RangerCrystal.World,
+        grindAction   = function()
+            grind(Challenge)
+        end,
+    },
+}
+
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+local itemsContainer = localPlayer.PlayerGui.Items.Main.Base.Space.Scrolling
+
+--// (1 = ObsidianPlate, 2 = SoulCore, 3 = RangerCrystal)
+local currentStepIndex = 1
+
+local function sungJinWooEvo()
+    task.spawn(function()
+        while _G.SungJinWoo and currentStepIndex <= #materialSequence do
+            _G.PlayMode = "VoteNext"
+            local currentMaterial = materialSequence[currentStepIndex]
+            local materialButton  = itemsContainer:FindFirstChild(currentMaterial.name)
+            local currentStage = getCurrentStage(game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Stage.Label.Text)
+            if currentStepIndex == 3 then
+                currentStage = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Gamemode.Label.Text
+            end
+    
+            if materialButton and materialButton:IsA("TextButton") then
+                local currentCount = getNumberFromText(
+                    materialButton.Frame.ItemFrame.Info.Amonut.Text
+                )
+                print(("%s: %d / %d")
+                    :format(currentMaterial.name, currentCount, currentMaterial.requiredCount)
+                )
+    
+                if currentCount < currentMaterial.requiredCount then
+                    
+                    if currentStage ~= currentMaterial.StageName then 
+                        currentMaterial.grindAction()
+                    end
+
+                else
+                    print("Enough Material: ", currentMaterial.name)
+                    currentStepIndex = currentStepIndex + 1
+                end
+            else
+                warn("Item Not Found: ", currentMaterial.name)
+                currentMaterial.grindAction()
+            end
+            task.wait(1)
+        end
+    
+        if currentStepIndex > #materialSequence then
+            print("Ready To Evolve Sung Jin Woo.")
+            toLobby()
+        end
+    end)
+end
+
+---------------------------------------------------[[ KAITUN GOJO EVO ]]---------------------------------------------------
+
+local function gojoEvo()
+    
+end
+
+
+---------------------------------------------------[[ Load Script ]]------------------------------------------------------
+
+gojoEvo()
+sungJinWooEvo()
+task.spawn(function()
+    while _G.AutoPlay do
+        while task.wait(RepeatFrequency) do
+            gameVote()
+        end
+    end
+end)
+whiteScreen()
+optimizeSettings()
+warn("Arc X - Anime Rangers X Loaded")
