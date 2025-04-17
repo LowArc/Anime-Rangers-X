@@ -3,16 +3,6 @@
 
 repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 
---// Kaitun
-_G.SungJinWoo = true 
-_G.AutoStartLobby = true 
-
---// PlayConfigs
-_G.AutoPlay = true
-_G.AutoUpgradeStats = true 
-_G.PlayMode = "VoteRetry" --// "VoteNext" or "VoteRetry"
-_G.WhiteScreen = false --// GPU 0%
-
 ----------------------------------------------------------[[ Main ]]-------------------------------------------------------------
 
 local OptimizeSettings = true
