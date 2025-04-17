@@ -43,6 +43,26 @@ local function optimizeSettings()
     end
 end
 
+--// AutoPrintGacha
+task.spawn(function()
+    while _G.NoticeGacha do
+        local Mythic = true
+        local Legendary = false
+        task.wait(10)
+
+        local Gacha = game:GetService("ReplicatedStorage").Gacha.Standard
+        local RateUp = game:GetService("ReplicatedStorage").Gacha.Rateup
+        if Mythic then
+            print("Mythic: " .. Gacha.Mythic:GetChildren()[1].Name)
+            for _, v in pairs(RateUp:GetChildren()) do
+                if v:IsA("StringValue") and v.Value == "Mythic" then
+                    print("RateUp: " .. v.Name)
+                end
+            end
+        end
+    end
+end)
+
 ---------------------------------------------------[[ Kaitun Info ]]------------------------------------------------
 
 local Recipes = {
