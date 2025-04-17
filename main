@@ -3,8 +3,6 @@
 
 ----------------------------------------------------------[[ Main ]]-------------------------------------------------------------
 
-repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
-
 local OptimizeSettings = true
 local RepeatFrequency = 0.1
 
