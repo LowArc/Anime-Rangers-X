@@ -1,9 +1,9 @@
 --// Anime Rangers X
 --// Scripted by: @ArcX
 
-repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
-
 ----------------------------------------------------------[[ Main ]]-------------------------------------------------------------
+
+repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 
 local OptimizeSettings = true
 local RepeatFrequency = 0.1
@@ -58,7 +58,20 @@ local Recipes = {
     },
     SoulCore = {
         Name = "Soul Core",
-        World = "Demon Slayer",
+        World = "DemonSlayer",
+        StageName = "Demon Forest",
+        Act = 3
+    },
+    EnergyVial = {
+        Name = "Energy Vial",
+        World = "Namek",
+        StageName = "Green Planet",
+        Act = 3
+    },
+    CoreOfSilence = {
+        Name = "Core of Silence",
+        World = "Naruto",
+        StageName = "Leaf Village",
         Act = 3
     },
 }
@@ -164,46 +177,60 @@ local function getCurrentStage(str)
     return str:gsub("%s*%-.*", "")
 end
 
-local materialSequence = {
-    {
-        name = "Obsidian Plate",
-        requiredCount = 10,
-        StageName = Recipes.ObsidianPlate.StageName,
-        grindAction = function()
-            grind(Ranger, Recipes.ObsidianPlate.World, Recipes.ObsidianPlate.Act)
-        end,
-    },
-    {
-        name = "Soul Core",
-        requiredCount = 7,
-        StageName = Recipes.SoulCore.StageName,
-        grindAction = function()
-            grind(Ranger, Recipes.SoulCore.World, Recipes.SoulCore.Act)
-        end,
-    },
-    {
-        name = "Ranger Crystal",
-        requiredCount = 18,
-        StageName = Recipes.RangerCrystal.World,
-        grindAction   = function()
-            grind(Challenge)
-        end,
-    },
-}
-
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
-local itemsContainer = localPlayer.PlayerGui.Items.Main.Base.Space.Scrolling
-
-
---// (1 = ObsidianPlate, 2 = SoulCore, 3 = RangerCrystal)
-local currentStepIndex = 1
+local function checkNotificationBar()
+    local NotificationBar = game:GetService("Players").LocalPlayer.PlayerGui.Notification._BAR_.BOTTOM
+    for _, v in pairs(NotificationBar:GetChildren()) do
+        if v:IsA("Frame") and v.Name == "form_bar" then
+            return true
+        end
+    end
+    return false
+end
 
 local function sungJinWooEvo()
+    local MaterialSequence = {
+        {
+            name = "Obsidian Plate",
+            requiredCount = 10,
+            StageName = Recipes.ObsidianPlate.StageName,
+            World = Recipes.ObsidianPlate.World,
+            grindAction = function()
+                grind(Ranger, Recipes.ObsidianPlate.World, Recipes.ObsidianPlate.Act)
+            end,
+        },
+        {
+            name = "Soul Core",
+            requiredCount = 7,
+            StageName = Recipes.SoulCore.StageName,
+            World = Recipes.SoulCore.World,
+            grindAction = function()
+                grind(Ranger, Recipes.SoulCore.World, Recipes.SoulCore.Act)
+            end,
+        },
+        {
+            name = "Ranger Crystal",
+            requiredCount = 18,
+            StageName = Recipes.RangerCrystal.World,
+            World = Recipes.RangerCrystal.World,
+            grindAction = function()
+                grind(Challenge)
+            end,
+        },
+    }
+    
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+    local itemsContainer = localPlayer.PlayerGui.Items.Main.Base.Space.Scrolling
+    
+    
+    --// (1 = ObsidianPlate, 2 = SoulCore, 3 = RangerCrystal)
+    local currentStepIndex = 1
+
     task.spawn(function()
-        while _G.SungJinWoo and currentStepIndex <= #materialSequence do
+        local Cooldown = false
+        while _G.SungJinWoo and currentStepIndex <= #MaterialSequence do
             _G.PlayMode = "VoteNext"
-            local currentMaterial = materialSequence[currentStepIndex]
+            local currentMaterial = MaterialSequence[currentStepIndex]
             local materialButton  = itemsContainer:FindFirstChild(currentMaterial.name)
             local currentStage = getCurrentStage(game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Stage.Label.Text)
             if currentStepIndex == 3 then
@@ -222,20 +249,30 @@ local function sungJinWooEvo()
                     
                     if currentStage ~= currentMaterial.StageName then 
                         currentMaterial.grindAction()
+                        Cooldown = checkNotificationBar()
                     end
-
                 else
                     print("Enough Material: ", currentMaterial.name)
                     currentStepIndex = currentStepIndex + 1
                 end
             else
                 warn("Item Not Found: ", currentMaterial.name)
-                currentMaterial.grindAction()
+                if currentStage ~= currentMaterial.StageName then 
+                    currentMaterial.grindAction()
+                    Cooldown = checkNotificationBar()
+                end
             end
             task.wait(1)
+            if Cooldown then
+                if _G.Challenge then
+                    print("Ranger Stage is Cooldowning... Switching to Challenge Mode.")
+                    local saveCurrentWorld = currentMaterial.World
+                    switchMode(saveCurrentWorld)
+                end
+                Cooldown = false
+            end
         end
-    
-        if currentStepIndex > #materialSequence then
+        if currentStepIndex > #MaterialSequence then
             print("Ready To Evolve Sung Jin Woo.")
             toLobby()
         end
@@ -245,11 +282,157 @@ end
 ---------------------------------------------------[[ KAITUN GOJO EVO ]]---------------------------------------------------
 
 local function gojoEvo()
+    local MaterialSequence = {
+        {
+            name = "Energy Vial",
+            requiredCount = 5,
+            StageName = Recipes.EnergyVial.StageName,
+            World = Recipes.EnergyVial.World,
+            grindAction = function()
+                grind(Ranger, Recipes.ObsidianPlate.World, Recipes.ObsidianPlate.Act)
+            end,
+        },
+        {
+            name = "Soul Core",
+            requiredCount = 5,
+            StageName = Recipes.SoulCore.StageName,
+            World = Recipes.SoulCore.World,
+            grindAction = function()
+                grind(Ranger, Recipes.SoulCore.World, Recipes.SoulCore.Act)
+            end,
+        },
+        {
+            name = "Core of Silence",
+            requiredCount = 10,
+            StageName = Recipes.CoreOfSilence.StageName,
+            World = Recipes.CoreOfSilence.World,
+            grindAction   = function()
+                grind(Ranger, Recipes.CoreOfSilence.World, Recipes.CoreOfSilence.Act)
+            end,
+        },
+        {
+            name = "Ranger Crystal",
+            requiredCount = 12,
+            StageName = Recipes.RangerCrystal.World,
+            World = Recipes.RangerCrystal.World,
+            grindAction = function()
+                grind(Challenge)
+            end,
+        },
+    }
     
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+    local itemsContainer = localPlayer.PlayerGui.Items.Main.Base.Space.Scrolling
+    
+    local currentStepIndex = 1
+
+    task.spawn(function()
+        local Cooldown = false
+        while _G.Gojo and currentStepIndex <= #MaterialSequence do
+            _G.PlayMode = "VoteNext"
+            local currentMaterial = MaterialSequence[currentStepIndex]
+            local materialButton  = itemsContainer:FindFirstChild(currentMaterial.name)
+            local currentStage = getCurrentStage(game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Stage.Label.Text)
+            if currentStepIndex == 4 then
+                currentStage = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Gamemode.Label.Text
+            end
+    
+            if materialButton and materialButton:IsA("TextButton") then
+                local currentCount = getNumberFromText(
+                    materialButton.Frame.ItemFrame.Info.Amonut.Text
+                )
+                print(("%s: %d / %d")
+                    :format(currentMaterial.name, currentCount, currentMaterial.requiredCount)
+                )
+    
+                if currentCount < currentMaterial.requiredCount then
+                    
+                    if currentStage ~= currentMaterial.StageName then 
+                        currentMaterial.grindAction()
+                        Cooldown = checkNotificationBar()
+                    end
+
+                else
+                    print("Enough Material: ", currentMaterial.name)
+                    currentStepIndex = currentStepIndex + 1
+                end
+            else
+                warn("Item Not Found: ", currentMaterial.name)
+                if currentStage ~= currentMaterial.StageName then 
+                    currentMaterial.grindAction()
+                    Cooldown = checkNotificationBar()
+                end
+            end
+            task.wait(1)
+            if Cooldown then
+                if _G.Challenge then
+                    print("Ranger Stage is Cooldowning... Switching to Challenge Mode.")
+                    local saveCurrentWorld = currentMaterial.World
+                    switchMode(saveCurrentWorld)
+                end
+                Cooldown = false
+            end
+        end
+        if currentStepIndex > #MaterialSequence then
+            print("Ready To Evolve Gojo.")
+            toLobby()
+        end
+    end)
 end
 
+---------------------------------------------------[[ KAITUN Switch Mode ]]-------------------------------------------------
+
+function switchMode(saveCurrentWorld)
+    task.spawn(function()
+        local savedMode 
+        local spawnDelay = false
+
+        if _G.SungJinWoo then
+            _G.SungJinWoo = false
+            savedMode = "SungJinWoo"
+        end
+        if _G.Gojo then
+            _G.Gojo = false
+            savedMode = "Gojo"
+        end
+
+        while _G.Challenge do
+            local currentStage = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Gamemode.Label.Text
+            _G.PlayMode = "VoteRetry"
+
+            if currentStage ~= "Challenge" then
+                grind(Challenge)
+                task.wait(1)
+            end
+            if not spawnDelay then
+                spawnDelay = true
+                task.delay(10, function()
+                    local NotificationBar = game:GetService("Players").LocalPlayer.PlayerGui.Notification._BAR_.BOTTOM
+                    spawnDelay = false
+                    grind(Ranger, saveCurrentWorld, 1)
+                    for _, v in pairs(NotificationBar:GetChildren()) do
+                        if v:IsA("Frame") and v.Name == "form_bar" then
+                            if savedMode == "SungJinWoo" then
+                                _G.SungJinWoo = true
+                                sungJinWooEvo()
+                            elseif savedMode == "Gojo" then
+                                _G.Gojo = true
+                                gojoEvo()
+                            end
+                            break
+                        end
+                    end
+                end)
+            end
+            task.wait(1)
+        end
+    end)
+end
 
 ---------------------------------------------------[[ Load Script ]]------------------------------------------------------
+
+print("Arc X - Anime Rangers X Loaded")
 
 gojoEvo()
 sungJinWooEvo()
@@ -263,4 +446,3 @@ end)
 whiteScreen()
 optimizeSettings()
 autoUpgradeStats()
-warn("Arc X - Anime Rangers X Loaded")
