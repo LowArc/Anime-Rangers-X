@@ -8,7 +8,7 @@ repeat wait() until game:IsLoaded() and game.Players and game.Players.LocalPlaye
 local OptimizeSettings = true
 local RepeatFrequency = 0.1
 
-local function AutoUpgradeStats()
+local function autoUpgradeStats()
     task.spawn(function()
         while _G.AutoUpgradeStats do
             task.wait(RepeatFrequency)
@@ -160,68 +160,9 @@ local Ranger = "Ranger Stage"
 local Story = "Story"
 local Challenge = "Challenge"
 
-local StageText = game:GetService("Players").LocalPlayer.PlayerGui.HUD.InGame.Main.GameInfo.Stage.Label
-
-local function sungJinWooEvo()
-    if not _G.SungJinWoo then return end
-    local Required_Materials = {
-        ObsidianPlate = {Name = "Obsidian Plate", Amount = 10},
-        SoulCore = {Name = "Soul Core", Amount = 7},
-        RangerCrystal = {Name = "Ranger Crystal", Amount = 18},
-    }
-
-
-    task.spawn(function()
-        local Method = 0
-        while _G.SungJinWoo do
-            task.wait(1)
-            local PlayerItems = game:GetService("Players").LocalPlayer.PlayerGui.Items.Main.Base.Space.Scrolling
-            for _, v in pairs(PlayerItems:GetChildren()) do
-                if v:IsA("TextButton") then
-                    if v.Name == Required_Materials.ObsidianPlate.Name then
-                        print(Required_Materials.ObsidianPlate.Name .. ": " .. extractNumber(v.Frame.ItemFrame.Info.Amonut.Text))
-                        if extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) ~= Required_Materials.ObsidianPlate.Amount and Method == 0 then
-                            Method = 1
-                            grind(Ranger, Recipes.ObsidianPlate.World, Recipes.ObsidianPlate.Act)
-                        elseif extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) == Required_Materials.ObsidianPlate.Amount then
-                            Method = 2
-                        end
-                    end
-                    if v.Name == Required_Materials.SoulCore.Name then
-                        print(Required_Materials.SoulCore.Name .. ": " .. extractNumber(v.Frame.ItemFrame.Info.Amonut.Text))
-                        if extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) ~= Required_Materials.SoulCore.Amount and Method == 2 then
-                            grind(Ranger, Recipes.SoulCore.World, Recipes.SoulCore.Act)
-                        elseif extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) == Required_Materials.SoulCore.Amount then
-                            Method = 3
-                        end
-                    end
-                    if v.Name == Required_Materials.RangerCrystal.Name then
-                        print(Required_Materials.RangerCrystal.Name .. ": " .. extractNumber(v.Frame.ItemFrame.Info.Amonut.Text))
-                        if extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) ~= Required_Materials.RangerCrystal.Amount and Method == 3 then
-                            grind(Challenge)
-                        elseif extractNumber(v.Frame.ItemFrame.Info.Amonut.Text) == Required_Materials.RangerCrystal.Amount then
-                            Method = false
-                        end
-                    end
-                else
-                    print("No Items Found.")
-                end
-            end
-            if Method == false then
-                print("Ready To Evolve Sung Jin Woo.")
-                break
-            end
-        end
-    end)
-end
-
----//
-
 local function getCurrentStage(str)
     return str:gsub("%s*%-.*", "")
 end
-
-
 
 local materialSequence = {
     {
@@ -253,6 +194,7 @@ local materialSequence = {
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 local itemsContainer = localPlayer.PlayerGui.Items.Main.Base.Space.Scrolling
+
 
 --// (1 = ObsidianPlate, 2 = SoulCore, 3 = RangerCrystal)
 local currentStepIndex = 1
@@ -320,4 +262,5 @@ task.spawn(function()
 end)
 whiteScreen()
 optimizeSettings()
+autoUpgradeStats()
 warn("Arc X - Anime Rangers X Loaded")
